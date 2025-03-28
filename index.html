@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credibly</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Boldonse&family=Hubot+Sans:ital,wght@0,200..900;1,200..900&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #ffffff;
+            --secondary-color: #a0a0a0;
+            --background-color: #000000;
+            --panel-bg: rgba(20, 20, 20, 0.6);
+            --panel-border: rgba(255, 255, 255, 0.1);
+            --text-color: #ffffff;
+            --muted-color: #aaaaaa;
+            --highlight-bg: rgba(40, 40, 40, 0.5);
+            --active-color: #ffffff;
+            --hover-color: #f0f0f0;
+            --border-radius: 16px;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --blur-amount: 12px;
+            --transition-speed: 0.4s;
+            --font-primary: 'hubot sans', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'hubot sans', 'Trebuchet MS' , Arial;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: var(--font-primary);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            background: linear-gradient(145deg, #000000, #121212);
+            overflow-x: hidden;
+        }
+
+        /* Ambient background effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(40, 40, 40, 0.15) 0%, transparent 80%);
+            z-index: -1;
+            animation: ambient-shift 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes ambient-shift {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            100% {
+                transform: translate(-5%, -5%);
+            }
+        }
+
+        .orb {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            z-index: -1;
+            animation: float 15s infinite alternate ease-in-out;
+        }
+
+        .orb-1 {
+            background: radial-gradient(circle, rgba(100, 100, 100, 0.4), transparent);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            background: radial-gradient(circle, rgba(180, 180, 180, 0.2), transparent);
+            bottom: -150px;
+            left: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(40px, 20px) scale(1.1);
+            }
+
+            100% {
+                transform: translate(-20px, 40px) scale(0.9);
+            }
+        }
+
+        .split-container {
+            display: flex;
+            height: 100vh;
+            padding: 2rem;
+            gap: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .left-panel,
+        .right-panel {
+            flex: 1;
+            background-color: var(--panel-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            border: 1px solid var(--panel-border);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .left-panel:hover,
+        .right-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), transparent);
+        }
+
+        textarea,
+        input,
+        select {
+            background-color: var(--highlight-bg);
+            border: 1px solid var(--panel-border);
+            padding: 0.85rem 1.2rem;
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+            font-size: 1rem;
+            font-family: var(--font-primary);
+            transition: all 0.3s ease;
+            resize: none;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            line-height: 1.5;
+        }
+
+        textarea:focus,
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+
+        textarea::placeholder,
+        input::placeholder {
+            color: var(--muted-color);
+            opacity: 0.6;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            display: block;
+            color: var(--muted-color);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23aaaaaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+
+        .effects {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 0.5rem 0 1rem;
+        }
+
+        .effect-option {
+            position: relative;
+            background: var(--highlight-bg);
+            border-radius: 12px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .effect-option input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .effect-option-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--muted-color);
+            transition: all 0.3s ease;
+        }
+
+        .effect-option:hover {
+            background: rgba(60, 60, 60, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .effect-option input:checked~.effect-option-label {
+            color: var(--primary-color);
+        }
+
+        .effect-option input:checked~.effect-option-label i {
+            transform: scale(1.2);
+        }
+
+        .effect-option input:checked~.effect-bg {
+            opacity: 1;
+        }
+
+        .effect-bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #ffffff, rgba(255, 255, 255, 0.4));
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        button {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.85rem 1.2rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .testimonial {
+            background-color: var(--highlight-bg);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+            font-size: 1.1rem;
+            position: relative;
+            transition: all 0.4s ease;
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            margin-bottom: 1.5rem;
+        }
+
+        .testimonial .quote {
+            font-style: italic;
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .testimonial .quote::before {
+            content: '"';
+            position: absolute;
+            left: -5px;
+            top: -15px;
+            font-size: 3.5rem;
+            opacity: 0.2;
+            font-family: Georgia, serif;
+        }
+
+        .attribution {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .author-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .author-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .author-title {
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+        }
+
+        /* Vibes */
+        .professional .avatar {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+        }
+
+        .aesthetic {
+            background: linear-gradient(135deg, rgba(40, 40, 40, 0.6), rgba(20, 20, 20, 0.8));
+        }
+
+        .aesthetic .quote {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.15rem;
+        }
+
+        .aesthetic .avatar {
+            background: linear-gradient(135deg, #ffffff20, #ffffff05);
+            border: none;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .playful {
+            transform: rotate(-1deg);
+        }
+
+        .playful .quote {
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        .playful .avatar {
+            border-radius: 12px;
+            transform: rotate(5deg);
+        }
+
+        .dev {
+            font-family: 'Courier New', monospace;
+            padding: 2rem;
+        }
+
+        .dev .quote {
+            padding-left: 0;
+        }
+
+        .dev .quote::before {
+            content: '// ';
+            position: static;
+            font-size: inherit;
+            opacity: 0.6;
+        }
+
+        .dev .avatar {
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Effects */
+        .hover-effect {
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .hover-effect:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Flip Card Effect */
+        .flip-card {
+            min-height: 200px;
+            perspective: 1000px;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 200px;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            min-height: 200px;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--panel-border);
+        }
+
+        .flip-card-front {
+            background-color: var(--highlight-bg);
+            color: var(--text-color);
+        }
+
+        .flip-card-back {
+            background: linear-gradient(135deg, rgba(60, 60, 60, 0.6), rgba(40, 40, 40, 0.8));
+            color: white;
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            font-size: 1.2rem;
+        }
+
+        /* Typewriter effect */
+        .typewriter-effect {
+            overflow: hidden;
+            border-right: 2px solid rgba(255, 255, 255, 0.75);
+            white-space: nowrap;
+            margin: 0 auto;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0
+            }
+
+            to {
+                width: 100%
+            }
+        }
+
+        @keyframes blink-caret {
+
+            from,
+            to {
+                border-color: transparent
+            }
+
+            50% {
+                border-color: rgba(255, 255, 255, 0.75)
+            }
+        }
+
+        /* New effects */
+        .glow-effect {
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+            }
+
+            100% {
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        .float-effect {
+            animation: float-animation 3s ease-in-out infinite;
+        }
+
+        @keyframes float-animation {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .scale-effect .quote {
+            transition: all 0.3s ease;
+        }
+
+        .scale-effect:hover .quote {
+            transform: scale(1.05);
+        }
+
+        .blur-in-effect {
+            animation: blur-in 1s ease-out forwards;
+        }
+
+        @keyframes blur-in {
+            from {
+                filter: blur(20px);
+                opacity: 0;
+            }
+
+            to {
+                filter: blur(0);
+                opacity: 1;
+            }
+        }
+
+        .export-tabs {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1.5rem;
+            background: rgba(30, 30, 30, 0.5);
+            padding: 0.3rem;
+            border-radius: 10px;
+        }
+
+        .export-tab {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--muted-color);
+            font-size: 0.9rem;
+            flex: 1;
+            text-align: center;
+        }
+
+        .export-tab:hover {
+            background-color: rgba(60, 60, 60, 0.5);
+            color: var(--primary-color);
+        }
+
+        .export-tab.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .export-code {
+            background-color: rgba(15, 15, 15, 0.7);
+            color: #d6d6d6;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            border-radius: var(--border-radius);
+            padding: 1.2rem;
+            max-height: 200px;
+            overflow: auto;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .export-code:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .export-actions button {
+            flex: 1;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--muted-color);
+            margin-top: auto;
+            padding-top: 1.5rem;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        footer:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .split-container {
+                flex-direction: column;
+                height: auto;
+                padding: 1rem;
+            }
+
+            .left-panel,
+            .right-panel {
+                width: 100%;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        #hone{
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        footer, a{
+            text-decoration: none;
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        </style>
+</head>
+
+<body>
+
+    <h1 id="hone">Credibly</h1>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="split-container">
+        <div class="left-panel blur-in-effect">
+            <h2><i class="fas fa-feather-alt"></i> Create Testimonial</h2>
+            <textarea id="testimonial-text" placeholder="Enter your quote here"
+                rows="3">This tool changed my life.</textarea>
+            <input type="text" id="author-name" placeholder="Your Name" value="Karen">
+            <input type="text" id="author-title" placeholder="Your Role" value="Probably">
+
+            <label for="vibe">Vibe</label>
+            <select id="vibe">
+                <option value="professional">Professional</option>
+                <option value="aesthetic">Aesthetic</option>
+                <option value="playful">Playful</option>
+                <option value="dev">Dev</option>
+            </select>
+
+            <label>Effects</label>
+            <div class="effects">
+                <label class="effect-option">
+                    <input type="checkbox" id="hover-effect">
+                    <span class="effect-option-label">
+                        <i class="fas fa-arrows-alt"></i>
+                        Hover
+                    </span>
+                    <span class="effect-bg"></span>
+                </label>
+
+                <label class="effect-option">
+                    <input type="checkbox" id="flip-card">
+                    <span class="effect-option-label">
+                        <i class="fas fa-sync-alt"></i>
+                        Flip
+                    </span>
+                    <span class="effect-bg"></span>
+                </label>
+
+                <label class="effect-option">
+                    <input type="checkbox" id="typewriter">
+                    <span class="effect-option-label">
+                        <i class="fas fa-keyboard"></i>
+                        Type
+                    </span>
+                    <span class="effect-bg"></span>
+                </label>
+
+                <label class="effect-option">
+                    <input type="checkbox" id="glow-effect">
+                    <span class="effect-option-label">
+                        <i class="fas fa-lightbulb"></i>
+                        Glow
+                    </span>
+                    <span class="effect-bg"></span>
+                </label>
+
+                <label class="effect-option">
+                    <input type="checkbox" id="float-effect">
+                    <span class="effect-option-label">
+                        <i class="fas fa-feather"></i>
+                        Float
+                    </span>
+                    <span class="effect-bg"></span>
+                </label>
+
+                <label class="effect-option">
+                    <input type="checkbox" id="scale-effect">
+                    <span class="effect-option-label">
+                        <i class="fas fa-search-plus"></i>
+                        Scale
+                    </span>
+                    <span class="effect-bg"></span>
+                </label>
+            </div>
+
+            <button id="generate-btn" class="btn-primary"><i class="fas fa-magic"></i> Generate</button>
+            <button id="random-quote"><i class="fas fa-random"></i> Random Quote</button>
+        </div>
+
+        <div class="right-panel blur-in-effect">
+            <div>
+                <h2><i class="fas fa-eye"></i> Preview</h2>
+                <div class="testimonial" id="testimonial-preview">
+                    <div class="quote">This tool is awsome</div>
+                    <div class="attribution">
+                        <div class="avatar">K</div>
+                        <div class="author-info">
+                            <div class="author-name">Karen</div>
+                            <div class="author-title">Probably</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2><i class="fas fa-code"></i> Export</h2>
+                <div class="export-tabs">
+                    <div class="export-tab active" data-tab="html">HTML</div>
+                    <div class="export-tab" data-tab="image">Image</div>
+                    <div class="export-tab" data-tab="tailwind">Tailwind</div>
+                </div>
+                <pre id="export-code" class="export-code"></pre>
+                <div class="export-actions">
+                    <button id="copy-code"><i class="fas fa-copy"></i> Copy</button>
+                    <button id="download-btn"><i class="fas fa-download"></i> Download</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <footer>
+        Designed with <i class="fas fa-bolt"></i> <a href="https://x.com/DeveloperNeer">Neer</a>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const testimonialText = document.getElementById('testimonial-text');
+            const authorName = document.getElementById('author-name');
+            const authorTitle = document.getElementById('author-title');
+            const vibeSelect = document.getElementById('vibe');
+            const hoverEffect = document.getElementById('hover-effect');
+            const flipCard = document.getElementById('flip-card');
+            const typewriter = document.getElementById('typewriter');
+            const glowEffect = document.getElementById('glow-effect');
+            const floatEffect = document.getElementById('float-effect');
+            const scaleEffect = document.getElementById('scale-effect');
+            const generateBtn = document.getElementById('generate-btn');
+            const randomQuoteBtn = document.getElementById('random-quote');
+            const testimonialPreview = document.getElementById('testimonial-preview');
+            const exportTabs = document.querySelectorAll('.export-tab');
+            const exportCode = document.getElementById('export-code');
+            const copyCodeBtn = document.getElementById('copy-code');
+            const downloadBtn = document.getElementById('download-btn');
+
+            let currentVibe = 'professional';
+            let currentTab = 'html';
+
+            const randomQuotes = [
+                { quote: "This tool changed my life. I now cry in Helvetica.", name: "Karen", title: "probably" },
+                { quote: "Before this app, I was just a regular developer. Now I'm still a regular developer but with nicer testimonials.", name: "Dev McDevface", title: "Senior Code Monkey" },
+                { quote: "I showed this to my cat and she stopped ignoring me for a full 5 seconds.", name: "Crazy Cat Person", title: "Cat Servant" },
+                { quote: "This is the most elegant way to show off fake compliments I've ever seen.", name: "Honest User", title: "Pretending to be Impressed" },
+                { quote: "My testimonials used to look boring until I found this. Now they're still boring but at least they look cool.", name: "Design Novice", title: "Trying Their Best" }
+            ];
+
+            // Initialize UI
+            updatePreview();
+
+            // Add entrance animations for panels
+            setTimeout(() => {
+                document.querySelectorAll('.blur-in-effect').forEach(el => {
+                    el.style.animation = 'none';
+                });
+            }, 1000);
+
+            // Event listeners
+            testimonialText.addEventListener('input', updatePreview);
+            authorName.addEventListener('input', updatePreview);
+            authorTitle.addEventListener('input', updatePreview);
+            vibeSelect.addEventListener('change', function () {
+                currentVibe = this.value;
+                updatePreview();
+            });
+
+            // Effects
+            hoverEffect.addEventListener('change', updatePreview);
+            flipCard.addEventListener('change', updatePreview);
+            typewriter.addEventListener('change', updatePreview);
+            glowEffect.addEventListener('change', updatePreview);
+            floatEffect.addEventListener('change', updatePreview);
+            scaleEffect.addEventListener('change', updatePreview);
+
+            generateBtn.addEventListener('click', function () {
+                updatePreview();
+                testimonialPreview.classList.add('blur-in-effect');
+                setTimeout(() => {
+                    testimonialPreview.classList.remove('blur-in-effect');
+                }, 1000);
+
+                // Button animation
+                this.innerHTML = '<i class="fas fa-check"></i> Generated!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-magic"></i> Generate';
+                }, 1500);
+            });
+
+            randomQuoteBtn.addEventListener('click', function () {
+                const randomQuote = randomQuotes[Math.floor(Math.random() * randomQuotes.length)];
+                testimonialText.value = randomQuote.quote;
+                authorName.value = randomQuote.name;
+                authorTitle.value = randomQuote.title;
+                updatePreview();
+
+                // Animation
+                testimonialPreview.classList.add('blur-in-effect');
+                setTimeout(() => {
+                    testimonialPreview.classList.remove('blur-in-effect');
+                }, 1000);
+            });
+
+            exportTabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    exportTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentTab = this.dataset.tab;
+                    updateExportCode();
+                });
+            });
+
+            copyCodeBtn.addEventListener('click', function () {
+                navigator.clipboard.writeText(exportCode.textContent)
+                    .then(() => {
+                        this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        setTimeout(() => {
+                            this.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                        }, 1500);
+                    })
+                    .catch(err => {
+                        this.innerHTML = '<i class="fas fa-times"></i> Failed!';
+                        setTimeout(() => {
+                            this.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                        }, 1500);
+                    });
+            });
+
+            downloadBtn.addEventListener('click', function () {
+                if (currentTab === 'image') {
+                    // Handle image download
+                    html2canvas(testimonialPreview).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = 'testimonial.png';
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    });
+                } else {
+                    // Handle HTML/CSS download
+                    const content = exportCode.textContent;
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = currentTab === 'html' ? 'testimonial.html' : 'testimonial-tailwind.html';
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }
+
+                this.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-download"></i> Download';
+                }, 1500);
+            });
+
+            function updatePreview() {
+    // Reset classes
+    testimonialPreview.className = 'testimonial';
+
+    // Get values
+    const quote = testimonialText.value;
+    const name = authorName.value;
+    const title = authorTitle.value;
+    const avatar = name.charAt(0) || '?';
+
+    // Apply vibe
+    testimonialPreview.classList.add(currentVibe);
+
+    // Apply effects
+    if (hoverEffect.checked) testimonialPreview.classList.add('hover-effect');
+    if (glowEffect.checked) testimonialPreview.classList.add('glow-effect');
+    if (floatEffect.checked) testimonialPreview.classList.add('float-effect');
+    if (scaleEffect.checked) testimonialPreview.classList.add('scale-effect');
+
+    // Handle flip card logic
+    if (flipCard.checked) {
+        testimonialPreview.classList.add('flip-card');
+        testimonialPreview.innerHTML = `
+            <div class="flip-card-inner">
+                <div class="flip-card-front">
+                    <div class="quote${typewriter.checked ? ' typewriter-effect' : ''}">${quote}</div>
+                    <div class="attribution">
+                        <div class="avatar">${avatar}</div>
+                        <div class="author-info">
+                            <div class="author-name">${name}</div>
+                            <div class="author-title">${title}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card-back">
+                    <div class="avatar" style="width: 64px; height: 64px;">${avatar}</div>
+                    <div class="author-name">${name}</div>
+                    <div class="author-title">${title}</div>
+                </div>
+            </div>
+        `;
+    } else {
+        testimonialPreview.classList.remove('flip-card');
+        testimonialPreview.innerHTML = `
+            <div class="quote${typewriter.checked ? ' typewriter-effect' : ''}">${quote}</div>
+            <div class="attribution">
+                <div class="avatar">${avatar}</div>
+                <div class="author-info">
+                    <div class="author-name">${name}</div>
+                    <div class="author-title">${title}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    updateExportCode();
+}
+
+            function updateExportCode() {
+                let codeContent = '';
+
+                if (currentTab === 'html') {
+                    // Generate HTML code
+                    codeContent = `<!-- Testimonial Widget -->
+<div class="testimonial ${currentVibe}${hoverEffect.checked ? ' hover-effect' : ''}${glowEffect.checked ? ' glow-effect' : ''}${floatEffect.checked ? ' float-effect' : ''}${scaleEffect.checked ? ' scale-effect' : ''}${flipCard.checked ? ' flip-card' : ''}">
+  ${flipCard.checked ? `<div class="flip-card-inner">
+    <div class="flip-card-front">
+      <div class="quote${typewriter.checked ? ' typewriter-effect' : ''}">${testimonialText.value}</div>
+      <div class="attribution">
+        <div class="avatar">${authorName.value.charAt(0)}</div>
+        <div class="author-info">
+          <div class="author-name">${authorName.value}</div>
+          <div class="author-title">${authorTitle.value}</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card-back">
+      <div class="avatar">${authorName.value.charAt(0)}</div>
+      <div class="author-name">${authorName.value}</div>
+      <div class="author-title">${authorTitle.value}</div>
+    </div>
+  </div>` : `<div class="quote${typewriter.checked ? ' typewriter-effect' : ''}">${testimonialText.value}</div>
+  <div class="attribution">
+    <div class="avatar">${authorName.value.charAt(0)}</div>
+    <div class="author-info">
+      <div class="author-name">${authorName.value}</div>
+      <div class="author-title">${authorTitle.value}</div>
+    </div>
+  </div>`}
+</div>
+
+<style>
+  .testimonial {
+    background-color: rgba(40, 40, 40, 0.5);
+    padding: 2.5rem;
+    border-radius: 16px;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    position: relative;
+    transition: all 0.4s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .testimonial .quote {
+    font-style: italic;
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    line-height: 1.6;
+  }
+  
+  .testimonial .quote::before {
+    content: '"';
+    position: absolute;
+    left: -5px;
+    top: -15px;
+    font-size: 3.5rem;
+    opacity: 0.2;
+    font-family: Georgia, serif;
+  }
+  
+  .attribution {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .author-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .author-name {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  
+  .author-title {
+    font-size: 0.85rem;
+    color: #a0a0a0;
+  }
+  
+  /* Add any selected effects CSS here */
+  ${generateEffectsCss()}
+</style>`;
+                } else if (currentTab === 'image') {
+                    codeContent = 'Rendering preview as image...';
+                    // In a real implementation, this would use html2canvas or similar to convert to image
+                } else if (currentTab === 'tailwind') {
+                    codeContent = `<!-- Tailwind Testimonial -->
+<div class="bg-gray-800 bg-opacity-50 p-10 rounded-2xl text-white font-sans relative transition-all duration-400 ease-in-out border border-white border-opacity-10 shadow-lg ${generateTailwindClasses()}">
+  ${flipCard.checked ? `<div class="relative w-full h-full min-h-[200px] text-center transition-transform duration-800 transform-style-3d hover:rotate-y-180">
+    <div class="absolute w-full h-full min-h-[200px] backface-hidden rounded-2xl p-8 flex flex-col justify-center">
+      <div class="italic relative mb-6 pl-6 leading-relaxed before:content-['\\201C'] before:absolute before:left-[-5px] before:top-[-15px] before:text-5xl before:opacity-20 before:font-serif ${typewriter.checked ? 'overflow-hidden animate-typing' : ''}">${testimonialText.value}</div>
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-white/10 to-white/5 rounded-full flex items-center justify-center font-semibold border border-white/10">${authorName.value.charAt(0)}</div>
+        <div class="flex flex-col">
+          <div class="font-semibold text-base">${authorName.value}</div>
+          <div class="text-sm text-gray-400">${authorTitle.value}</div>
+        </div>
+      </div>
+    </div>
+    <div class="absolute w-full h-full min-h-[200px] backface-hidden rounded-2xl p-8 flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-gray-600/60 to-gray-800/80 rotate-y-180">
+      <div class="w-16 h-16 bg-gradient-to-br from-white/10 to-white/5 rounded-full flex items-center justify-center font-semibold text-xl">${authorName.value.charAt(0)}</div>
+      <div class="font-semibold text-lg">${authorName.value}</div>
+      <div class="text-gray-300">${authorTitle.value}</div>
+    </div>
+  </div>` : `<div class="italic relative mb-6 pl-6 leading-relaxed before:content-['\\201C'] before:absolute before:left-[-5px] before:top-[-15px] before:text-5xl before:opacity-20 before:font-serif ${typewriter.checked ? 'overflow-hidden animate-typing' : ''}">${testimonialText.value}</div>
+  <div class="flex items-center gap-4">
+    <div class="w-12 h-12 bg-gradient-to-br from-white/10 to-white/5 rounded-full flex items-center justify-center font-semibold border border-white/10">${authorName.value.charAt(0)}</div>
+    <div class="flex flex-col">
+      <div class="font-semibold text-base">${authorName.value}</div>
+      <div class="text-sm text-gray-400">${authorTitle.value}</div>
+    </div>
+  </div>`}
+</div>
+
+<!-- You'll need to add these custom animations to your Tailwind config -->
+<style>
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+  
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: rgba(255, 255, 255, 0.75) }
+  }
+  
+  .animate-typing {
+    border-right: 2px solid rgba(255, 255, 255, 0.75);
+    white-space: nowrap;
+    margin: 0 auto;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+  }
+  
+  .backface-hidden {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+</style>`;
+                }
+
+                exportCode.textContent = codeContent;
+            }
+
+            function generateEffectsCss() {
+                let css = '';
+
+                // Add vibe-specific CSS
+                if (currentVibe === 'professional') {
+                    css += `.professional .avatar {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+  }\n`;
+                } else if (currentVibe === 'aesthetic') {
+                    css += `.aesthetic {
+    background: linear-gradient(135deg, rgba(40, 40, 40, 0.6), rgba(20, 20, 20, 0.8));
+  }
+  
+  .aesthetic .quote {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.15rem;
+  }
+  
+  .aesthetic .avatar {
+    background: linear-gradient(135deg, #ffffff20, #ffffff05);
+    border: none;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  }\n`;
+                } else if (currentVibe === 'playful') {
+                    css += `.playful {
+    transform: rotate(-1deg);
+  }
+  
+  .playful .quote {
+    font-family: 'Comic Sans MS', cursive;
+  }
+  
+  .playful .avatar {
+    border-radius: 12px;
+    transform: rotate(5deg);
+  }\n`;
+                } else if (currentVibe === 'dev') {
+                    css += `.dev {
+    font-family: 'Courier New', monospace;
+    padding: 2rem;
+  }
+  
+  .dev .quote {
+    padding-left: 0;
+  }
+  
+  .dev .quote::before {
+    content: '// ';
+    position: static;
+    font-size: inherit;
+    opacity: 0.6;
+  }
+  
+  .dev .avatar {
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+  }\n`;
+                }
+
+                // Add effects CSS
+                if (hoverEffect.checked) {
+                    css += `.hover-effect {
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .hover-effect:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  }\n`;
+                }
+
+                if (flipCard.checked) {
+                    css += `.flip-card {
+    min-height: 200px;
+    perspective: 1000px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+  }
+  
+  .flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+  
+  .flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .flip-card-front {
+    background-color: rgba(40, 40, 40, 0.5);
+    color: white;
+  }
+  
+  .flip-card-back {
+    background: linear-gradient(135deg, rgba(60, 60, 60, 0.6), rgba(40, 40, 40, 0.8));
+    color: white;
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    font-size: 1.2rem;
+  }\n`;
+                }
+
+                if (typewriter.checked) {
+                    css += `.typewriter-effect {
+    overflow: hidden;
+    border-right: 2px solid rgba(255, 255, 255, 0.75);
+    white-space: nowrap;
+    margin: 0 auto;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+  }
+  
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+  
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: rgba(255, 255, 255, 0.75) }
+  }\n`;
+                }
+
+                if (glowEffect.checked) {
+                    css += `.glow-effect {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    animation: pulse-glow 2s infinite alternate;
+  }
+  
+  @keyframes pulse-glow {
+    0% {
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    }
+    100% {
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.1);
+    }
+  }\n`;
+                }
+
+                if (floatEffect.checked) {
+                    css += `.float-effect {
+    animation: float-animation 3s ease-in-out infinite;
+  }
+  
+  @keyframes float-animation {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }\n`;
+                }
+
+                if (scaleEffect.checked) {
+                    css += `.scale-effect .quote {
+    transition: all 0.3s ease;
+  }
+  
+  .scale-effect:hover .quote {
+    transform: scale(1.05);
+  }\n`;
+                }
+
+                return css;
+            }
+
+            function generateTailwindClasses() {
+                let classes = '';
+
+                // Add vibe-specific classes
+                if (currentVibe === 'professional') {
+                    classes += '';
+                } else if (currentVibe === 'aesthetic') {
+                    classes += 'bg-gradient-to-br from-gray-800/60 to-gray-900/80 ';
+                } else if (currentVibe === 'playful') {
+                    classes += '-rotate-1 ';
+                } else if (currentVibe === 'dev') {
+                    classes += 'font-mono p-8 ';
+                }
+
+                // Add effect classes
+                if (hoverEffect.checked) {
+                    classes += 'hover:-translate-y-2.5 hover:scale-[1.02] hover:shadow-xl transition-all duration-500 ';
+                }
+
+                if (glowEffect.checked) {
+                    classes += 'shadow-[0_0_15px_rgba(255,255,255,0.1)] animate-pulse-glow ';
+                }
+
+                if (floatEffect.checked) {
+                    classes += 'animate-float ';
+                }
+
+                return classes;
+            }
+
+            // Load script for image export if needed
+            if (!window.html2canvas && document.querySelector('[data-tab="image"]')) {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                document.body.appendChild(script);
+            }
+
+            // Initial export code update
+            updateExportCode();
+        });
+    </script>
+</body>
+
+</html>
